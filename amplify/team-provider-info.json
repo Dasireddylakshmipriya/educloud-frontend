@@ -1,0 +1,62 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-educloudfrontend-dev-ba859-authRole",
+      "UnauthRoleArn": "arn:aws:iam::217553594079:role/amplify-educloudfrontend-dev-ba859-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::217553594079:role/amplify-educloudfrontend-dev-ba859-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-educloudfrontend-dev-ba859-deployment",
+      "UnauthRoleName": "amplify-educloudfrontend-dev-ba859-unauthRole",
+      "StackName": "amplify-educloudfrontend-dev-ba859",
+      "StackId": "arn:aws:cloudformation:us-east-1:217553594079:stack/amplify-educloudfrontend-dev-ba859/a11657d0-b000-11f0-87a5-0afff5552ab7",
+      "AmplifyAppId": "d3poy2y4gbeo1h"
+    },
+    "categories": {
+      "auth": {
+        "educloudfrontend1a247887": {}
+      },
+      "storage": {
+        "s3afdc0ba5": {}
+      }
+    }
+  },
+  "devnew": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-educloudfrontend-devnew-3ae33-authRole",
+      "UnauthRoleArn": "arn:aws:iam::217553594079:role/amplify-educloudfrontend-devnew-3ae33-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::217553594079:role/amplify-educloudfrontend-devnew-3ae33-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-educloudfrontend-devnew-3ae33-deployment",
+      "UnauthRoleName": "amplify-educloudfrontend-devnew-3ae33-unauthRole",
+      "StackName": "amplify-educloudfrontend-devnew-3ae33",
+      "StackId": "arn:aws:cloudformation:us-east-1:217553594079:stack/amplify-educloudfrontend-devnew-3ae33/1ebaf100-b09c-11f0-b79b-1202e1a6de7f",
+      "AmplifyAppId": "d3poy2y4gbeo1h"
+    },
+    "categories": {
+      "auth": {
+        "educloudfrontend1a247887": {}
+      }
+    }
+  },
+  "cleanenv": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-educloudfrontend-cleanenv-3c289-authRole",
+      "UnauthRoleArn": "arn:aws:iam::217553594079:role/amplify-educloudfrontend-cleanenv-3c289-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::217553594079:role/amplify-educloudfrontend-cleanenv-3c289-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-educloudfrontend-cleanenv-3c289-deployment",
+      "UnauthRoleName": "amplify-educloudfrontend-cleanenv-3c289-unauthRole",
+      "StackName": "amplify-educloudfrontend-cleanenv-3c289",
+      "StackId": "arn:aws:cloudformation:us-east-1:217553594079:stack/amplify-educloudfrontend-cleanenv-3c289/a0705af0-b09c-11f0-8b28-0affdb27a929",
+      "AmplifyAppId": "d3poy2y4gbeo1h"
+    },
+    "categories": {
+      "auth": {
+        "educloudfrontend1a247887": {}
+      },
+      "storage": {
+        "s3afdc0ba5": {}
+      }
+    }
+  }
+}

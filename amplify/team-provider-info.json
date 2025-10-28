@@ -16,7 +16,14 @@
         "educloudfrontend1a247887": {}
       },
       "storage": {
-        "s3afdc0ba5": {}
+        "s3afdc0ba5": {
+          "output": {
+            "bucketName": "educloudfrontend2bf38c8bc5dc4051a5746eb0aace1a63c289-cleanenv",
+            "region": "us-east-1",
+            "BucketName": "educloudfrontend2bf38c8bc5dc4051a5746eb0aace1a63c289-cleanenv",
+            "Region": "us-east-1"
+          }
+        }
       }
     }
   },
@@ -55,7 +62,14 @@
         "educloudfrontend1a247887": {}
       },
       "storage": {
-        "s3afdc0ba5": {}
+        "s3afdc0ba5": {
+          "output": {
+            "bucketName": "educloudfrontend2bf38c8bc5dc4051a5746eb0aace1a63c289-cleanenv",
+            "region": "us-east-1",
+            "BucketName": "educloudfrontend2bf38c8bc5dc4051a5746eb0aace1a63c289-cleanenv",
+            "Region": "us-east-1"
+          }
+        }
       }
     }
   }

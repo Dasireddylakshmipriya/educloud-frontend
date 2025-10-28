@@ -1,7 +1,7 @@
 {
   "policyUUID": "123e4567-e89b-12d3-a456-426614174000",
   "resourceName": "s3afdc0ba5",
-  "bucketName": "educloudfrontend-cleanenv",
+  "bucketName": "educloudfrontend2bf38c8bc5dc4051a5746eb0aace1a63c289-cleanenv",
   "storageAccess": "authAndGuest",
   "guestAccess": [
     "READ"

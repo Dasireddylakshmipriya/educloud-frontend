@@ -13,7 +13,9 @@
     },
     "categories": {
       "auth": {
-        "educloudfrontend1a247887": {}
+        "educloudfrontend1a247887": {
+          "providerPlugin": "awscloudformation"
+        }
       },
       "storage": {
         "s3afdc0ba5": {
@@ -22,7 +24,13 @@
             "region": "us-east-1",
             "BucketName": "educloudfrontend2bf38c8bc5dc4051a5746eb0aace1a63c289-cleanenv",
             "Region": "us-east-1"
-          }
+          },
+          "providerPlugin": "awscloudformation"
+        }
+      },
+      "function": {
+        "yourLambdaFunctionName": {
+          "providerPlugin": "awscloudformation"
         }
       }
     }
@@ -41,7 +49,14 @@
     },
     "categories": {
       "auth": {
-        "educloudfrontend1a247887": {}
+        "educloudfrontend1a247887": {
+          "providerPlugin": "awscloudformation"
+        }
+      },
+      "function": {
+        "yourLambdaFunctionName": {
+          "providerPlugin": "awscloudformation"
+        }
       }
     }
   },
@@ -59,7 +74,9 @@
     },
     "categories": {
       "auth": {
-        "educloudfrontend1a247887": {}
+        "educloudfrontend1a247887": {
+          "providerPlugin": "awscloudformation"
+        }
       },
       "storage": {
         "s3afdc0ba5": {
@@ -68,8 +85,15 @@
             "region": "us-east-1",
             "BucketName": "educloudfrontend2bf38c8bc5dc4051a5746eb0aace1a63c289-cleanenv",
             "Region": "us-east-1"
-          }
+          },
+          "providerPlugin": "awscloudformation"
         }
+      },
+      "function": {
+        "yourLambdaFunctionName": {
+          "providerPlugin": "awscloudformation"
+        },
+        "quizfunction": {}
       }
     }
   }

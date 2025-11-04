@@ -27,6 +27,13 @@
       "service": "Cognito"
     }
   },
+  "function": {
+    "quizfunction": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
   "storage": {
     "s3afdc0ba5": {
       "dependsOn": []

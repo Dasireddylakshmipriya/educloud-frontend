@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EduCloud Secure Summarizer</title>
+  <style>
+    body { font-family: Arial; margin: 2rem; }
+    h2 { color: #333; }
+    input, button { padding: 0.7rem; margin: 0.5rem 0; }
+    button { cursor: pointer; }
+    #output { margin-top: 1rem; background: #f4f4f4; padding: 1rem; border-radius: 8px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h2>🔒 EduCloud Secure Summarizer</h2>
+
+  <!-- Login/Logout -->
+  <div id="authSection">
+    <button id="loginBtn">Login</button>
+    <button id="logoutBtn" style="display:none;">Logout</button>
+  </div>
+
+  <!-- File Upload + API -->
+  <div id="apiSection" style="display:none;">
+    <input type="file" id="fileInput" accept=".pdf,.docx" />
+    <br/>
+    <button id="uploadBtn">Upload File</button>
+    <br/>
+    <button id="summarizeBtn" disabled>Summarize</button>
+    <button id="quizBtn" disabled>Generate Quiz</button>
+
+    <div id="output"></div>
+  </div>
+
+  <script>
+    // ====== CONFIG ======
+    const API_BASE = "https://bnksajuxeg.execute-api.us-east-1.amazonaws.com/default";
+    const S3_UPLOAD_URL = "https://YOUR_UPLOAD_LAMBDA_URL"; // Replace with your API/Lambda endpoint that gives presigned S3 URL
+    const COGNITO_DOMAIN = "https://educloud-summarizer.auth.us-east-1.amazoncognito.com";
+    const CLIENT_ID = "YOUR_APP_CLIENT_ID";
+    const REDIRECT_URI = "http://localhost:5500/index.html"; // Change to your site URL
+    const TOKEN_KEY = "cognito_token";
+    let uploadedFileKey = null;
+
+    // ====== LOGIN / LOGOUT ======
+    document.getElementById("loginBtn").addEventListener("click", () => {
+      window.location.href = `${COGNITO_DOMAIN}/login?client_id=${CLIENT_ID}&response_type=token&scope=email+openid+profile&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem(TOKEN_KEY);
+      window.location.href = `${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(REDIRECT_URI)}`;
+    });
+
+    // ====== HANDLE TOKEN ======
+    if (window.location.hash.includes("id_token")) {
+      const hash = new URLSearchParams(window.location.hash.substring(1));
+      const token = hash.get("id_token");
+      if (token) {
+        localStorage.setItem(TOKEN_KEY, token);
+        window.location.hash = "";
+      }
+    }
+
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (token) {
+      document.getElementById("authSection").style.display = "none";
+      document.getElementById("apiSection").style.display = "block";
+    }
+
+    // ====== UPLOAD FILE ======
+    document.getElementById("uploadBtn").addEventListener("click", async () => {
+      const file = document.getElementById("fileInput").files[0];
+      const output = document.getElementById("output");
+
+      if (!file) return alert("Please select a file");
+
+      output.textContent = "Getting upload URL...";
+
+      try {
+        // Step 1: Get presigned URL from your backend
+        const res = await fetch(S3_UPLOAD_URL, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ fileName: file.name, fileType: file.type })
+        });
+
+        const { uploadURL, fileKey } = await res.json();
+
+        // Step 2: Upload file to S3
+        output.textContent = "Uploading file to S3...";
+        await fetch(uploadURL, {
+          method: "PUT",
+          headers: { "Content-Type": file.type },
+          body: file
+        });
+
+        output.textContent = `✅ File uploaded successfully: ${file.name}`;
+        uploadedFileKey = fileKey;
+        document.getElementById("summarizeBtn").disabled = false;
+        document.getElementById("quizBtn").disabled = false;
+
+      } catch (err) {
+        output.textContent = "❌ Upload failed: " + err.message;
+      }
+    });
+
+    // ====== CALL EDUCLOUD API ======
+    async function callEduCloudAPI(taskType) {
+      const outputDiv = document.getElementById("output");
+      if (!uploadedFileKey) return alert("Upload a file first!");
+
+      outputDiv.textContent = "Processing...";
+
+      try {
+        const response = await fetch(`${API_BASE}/EduCloud-Summarizer`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ fileKey: uploadedFileKey, task: taskType })
+        });
+
+        const data = await response.json();
+        let result = data.body && typeof data.body === "string" ? JSON.parse(data.body) : data;
+        outputDiv.textContent = JSON.stringify(result, null, 2);
+      } catch (error) {
+        outputDiv.textContent = "❌ Error: " + error.message;
+      }
+    }
+
+    document.getElementById("summarizeBtn").addEventListener("click", () => callEduCloudAPI("summarize"));
+    document.getElementById("quizBtn").addEventListener("click", () => callEduCloudAPI("generateQuiz"));
+  </script>
+</body>
+</html>

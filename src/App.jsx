@@ -1,5 +1,3 @@
-// src/App.jsx
-
 import { useState, useEffect } from 'react';
 import { Authenticator, Button, Heading, Flex, View, Card, Text, Alert } from '@aws-amplify/ui-react';
 import { StorageManager } from '@aws-amplify/ui-react-storage';
@@ -39,12 +37,44 @@ function App() {
   const [summaryText, setSummaryText] = useState('');
   const [isSummarizing, setIsSummarizing] = useState(false);
 
-  // List uploaded quiz files
+  // My Files Section
+  const [userFiles, setUserFiles] = useState([]);
+  const [isLoadingUserFiles, setIsLoadingUserFiles] = useState(false);
+
+  // List quiz files
   async function fetchQuizFiles() {
     setIsLoadingFiles(true);
     try {
       const result = await list({
-        path: ({ identityId }) => `protected/${identityId}/quizzes/`,
+        path: "protected/us-east-1:32a73466-df15-c79d-91ee-35fa9511c268/quizzes",
+        options: { listAll: true }
+      });
+      console.log('Quiz files from S3:', result);
+      const actualFiles = result.items.filter(item =>
+        item.size !== undefined &&
+        item.size > 0 &&
+        item.path &&
+        !item.path.endsWith('/'));
+      const formattedFiles = actualFiles.map(file => ({
+        key: file.path,
+        lastModified: file.lastModified?.toLocaleString() || 'N/A',
+      }));
+      console.log('Formatted quiz files:', formattedFiles);
+      setQuizFiles(formattedFiles);
+    } catch (error) {
+      console.error('Error fetching quiz files:', error);
+      setQuizFiles([]);
+    } finally {
+      setIsLoadingFiles(false);
+    }
+  }
+
+  // List user (normal) files
+  async function fetchUserFiles() {
+    setIsLoadingUserFiles(true);
+    try {
+      const result = await list({
+        path: ({ identityId }) => `protected/${identityId}/myfiles/`,
         options: { listAll: true }
       });
       const actualFiles = result.items.filter(item =>
@@ -56,11 +86,12 @@ function App() {
         key: file.path,
         lastModified: file.lastModified?.toLocaleString() || 'N/A',
       }));
-      setQuizFiles(formattedFiles);
+      setUserFiles(formattedFiles);
     } catch (error) {
-      setQuizFiles([]);
+      console.error('Error fetching user files:', error);
+      setUserFiles([]);
     } finally {
-      setIsLoadingFiles(false);
+      setIsLoadingUserFiles(false);
     }
   }
 
@@ -70,9 +101,11 @@ function App() {
         await fetchAuthSession({ forceRefresh: false });
         setIsAuthenticated(true);
         fetchQuizFiles();
+        fetchUserFiles();
       } catch (e) {
         setIsAuthenticated(false);
         setQuizFiles([]);
+        setUserFiles([]);
       }
     }
     checkAuthState();
@@ -81,23 +114,52 @@ function App() {
   // QUIZ - Call Lambda to get quiz
   async function generateSimpleQuiz(fileKey) {
     setIsGeneratingQuiz(true);
+    console.log('=== GENERATING QUIZ ===');
+    console.log('File key:', fileKey);
+    
     try {
+      const requestBody = { fileKey, task: 'generateQuiz' };
+      console.log('Request body:', requestBody);
+      
       const restOperation = post({
         apiName,
         path: '/EduCloud-Summarizer',
-        options: { body: { fileKey, task: 'generateQuiz' } }
+        options: { body: requestBody }
       });
+      
+      console.log('Waiting for response...');
       const response = await restOperation.response;
+      console.log('Response received:', response);
+      
       const data = await response.body.json();
-      if (data.success && data.questions) {
+      console.log('Parsed data:', data);
+      
+      // Check if response has 'body' property (Lambda wraps response)
+      let actualData = data;
+      if (data.body && typeof data.body === 'string') {
+        console.log('Lambda wrapped response detected, parsing body...');
+        actualData = JSON.parse(data.body);
+      }
+      
+      console.log('Actual data:', actualData);
+      console.log('actualData.success:', actualData.success);
+      console.log('actualData.questions:', actualData.questions);
+      console.log('actualData.error:', actualData.error);
+
+      
+      if (actualData.success && actualData.questions) {
+        console.log('SUCCESS - Quiz questions received:', actualData.questions);
         const fileName = fileKey.split('/').pop().replace(/\.(pptx?|pdf)$/i, '');
-        setCurrentQuiz({ title: fileName, questions: data.questions, fileKey });
+        setCurrentQuiz({ title: fileName, questions: actualData.questions, fileKey });
         setUserAnswers({});
         setShowResults(false);
       } else {
-        alert('Failed to generate quiz. Please try again.');
+        console.log('FAILED - Quiz generation failed. Data:', actualData);
+        alert('Failed to generate quiz. Error: ' + (actualData.error || 'Unknown error'));
       }
     } catch (error) {
+      console.error('ERROR in generateSimpleQuiz:', error);
+      console.error('Error details:', error.message);
       alert('Error generating quiz. Check console for details.');
     } finally {
       setIsGeneratingQuiz(false);
@@ -109,7 +171,9 @@ function App() {
     try {
       await remove({ path: fileKey });
       fetchQuizFiles();
-    } catch (error) {}
+    } catch (error) {
+      console.error('Error deleting quiz file:', error);
+    }
   }
 
   function handleAnswerSelect(questionId, optionIndex) {
@@ -149,7 +213,14 @@ function App() {
 
   // After upload success - refresh quiz file list
   function onUploadSuccess({ key }) {
+    console.log('Quiz file uploaded:', key);
     setTimeout(() => { fetchQuizFiles(); }, 500);
+  }
+
+  // After upload success - refresh my normal files
+  function onNormalUploadSuccess({ key }) {
+    console.log('Normal file uploaded:', key);
+    setTimeout(() => { fetchUserFiles(); }, 500);
   }
 
   // SIGN OUT
@@ -158,13 +229,17 @@ function App() {
       await signOutProvidedByAuthenticator();
       setIsAuthenticated(false);
       setQuizFiles([]);
-    } catch (error) {}
+      setUserFiles([]);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   // ===== SUMMARIZER FUNCTION =====
   async function handleSummarize(fileKey) {
     setIsSummarizing(true);
     setSummaryText('');
+    console.log('Summarizing file:', fileKey);
     try {
       const restOperation = post({
         apiName,
@@ -173,19 +248,25 @@ function App() {
       });
       const response = await restOperation.response;
       const data = await response.body.json();
-      if (data.success && data.summary) setSummaryText(data.summary);
+      console.log('Summary response:', data);
+      
+      // Handle wrapped response
+      let actualData = data;
+      if (data.body && typeof data.body === 'string') {
+        actualData = JSON.parse(data.body);
+      }
+      
+      if (actualData.success && actualData.summary) setSummaryText(actualData.summary);
       else setSummaryText('No summary returned.');
-    } catch {
+    } catch (error) {
+      console.error('Summary error:', error);
       setSummaryText('Summary failed.');
     } finally {
       setIsSummarizing(false);
     }
   }
 
-  // ===============================
-  // ========== RENDER =============
-  // ===============================
-
+  // Render Quiz UI
   if (currentQuiz) {
     const score = calculateScore();
     const totalQuestions = currentQuiz.questions.length;
@@ -292,7 +373,7 @@ function App() {
     );
   }
 
-  // ================= Dashboard (Default) ================
+  // Render Dashboard (Default)
   return (
     <Authenticator formFields={formFields} loginMechanisms={['email']}>
       {({ signOut, user }) => (
@@ -331,7 +412,7 @@ function App() {
               <Heading level={3} style={{ marginBottom: '20px' }}>🧠 Quiz Generator</Heading>
               <StorageManager
                 acceptedFileTypes={acceptedFileTypes}
-                path={({ identityId }) => `protected/${identityId}/quizzes/`}
+                path="quizzes/"
                 maxFileCount={1}
                 isResumable
                 autoUpload={true}
@@ -356,6 +437,44 @@ function App() {
                           Take Quiz
                         </Button>
                       </Flex>
+                    </Card>
+                  ))
+                )}
+              </View>
+            </View>
+            {/* My Files Section */}
+            <View flex="1" padding="1rem" border="1px solid #ccc" borderRadius="6px">
+              <Heading level={3} style={{ marginBottom: '20px' }}>🗂️ My Files</Heading>
+              <StorageManager
+                path={({ identityId }) => `protected/${identityId}/myfiles/`}
+                maxFileCount={10}
+                isResumable
+                autoUpload={true}
+                onUploadSuccess={onNormalUploadSuccess}
+                showUploadList={true}
+              />
+              <View marginTop="2rem">
+                <Heading level={4}>Your Uploaded Files</Heading>
+                {isLoadingUserFiles ? (
+                  <Text>Loading files...</Text>
+                ) : userFiles.length === 0 ? (
+                  <Text>No files uploaded yet.</Text>
+                ) : (
+                  userFiles.map(file => (
+                    <Card key={file.key} variation="outlined" margin="1rem 0">
+                      <Flex justifyContent="space-between" alignItems="center">
+                        <Text>{file.key.split('/').pop()}</Text>
+                        <Button 
+                          as="a"
+                          href={`https://educloudfrontend2bf38c8bc5dc4051a5746eb0aace1a63c289-cleanenv.s3.amazonaws.com/${file.key}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          variation="link"
+                        >
+                          View
+                        </Button>
+                      </Flex>
+                      <Text fontSize="0.9rem" marginTop="0.5rem">Last Modified: {file.lastModified}</Text>
                     </Card>
                   ))
                 )}

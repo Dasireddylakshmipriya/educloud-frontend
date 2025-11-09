@@ -1,99 +1,59 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
+html, body {
   margin: 0;
-  min-width: 320px;
+  padding: 0;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.container {
   min-height: 100vh;
-  width: 100vw;
-  height: 100vh;
-  /* 🎨 Stunning background image setup */
-  background: url('/login_bg.jpg') center center/cover no-repeat fixed;
-  position: relative;
+  padding-top: 140px; /* header height, can adjust if needed */
+}
+
+.navbar, header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 140px;
+  background: white;
+  z-index: 1000;
   display: flex;
   align-items: center;
-  justify-content: center;
+  padding-left: 30px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
 }
 
-/* Center root contents */
-#root {
-  min-height: 100vh;
-  min-width: 100vw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-/* Beautify Amplify Auth login box */
-.amplify-authenticator {
-  background: rgba(28, 28, 32, 0.97);
-  border-radius: 18px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.35), 0 1.5px 10px rgba(0,0,0,0.11);
-  padding: 2.7rem 2.4rem 2.2rem 2.4rem;
-  max-width: 410px;
+.quiz-question {
+  margin-bottom: 22px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
 }
 
-.amplify-field, .amplify-button, .amplify-tabs {
-  font-size: 1.08rem;
+.quiz-question:last-child {
+  border-bottom: none;
 }
 
-.amplify-heading {
-  text-align: center;
-  letter-spacing: 0.02em;
-  margin-bottom: 8px;
+ul {
+  padding-left: 20px;
 }
 
-/* Subtle and modern button */
-.amplify-button--primary {
-  background: linear-gradient(90deg, #19bfa4 0%, #40a9ff 100%);
-  border-radius: 8px;
-  font-weight: bold;
-  color: #fff;
-  letter-spacing: 1px;
-  transition: background 0.2s;
-}
-.amplify-button--primary:hover {
-  background: linear-gradient(95deg, #53f783, #30e2d0 70%);
-  filter: brightness(1.06);
+button {
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: none;
+  background: #1976d2;
+  color: white;
+  cursor: pointer;
+  margin-right: 5px;
 }
 
-/* Extra: For light mode, tweak look a little */
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  body {
-    background: url('C:\Users\dlaks\educloud-frontend\login_bg.jpg') center center/cover no-repeat fixed;
-  }
-  .amplify-authenticator {
-    background: rgba(255,255,255,0.89);
-  }
-}
-
-/* Responsive for very small screens */
-@media (max-width: 450px) {
-  .amplify-authenticator {
-    padding: 1.2rem 0.5rem;
-    max-width: 95vw;
-  }
+button:hover {
+  background: #004ba0;
 }

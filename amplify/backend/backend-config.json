@@ -34,6 +34,40 @@
       "service": "Lambda"
     }
   },
+  "parameters": {
+    "AMPLIFY_auth_educloudfrontend1a247887_providerPlugin": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "educloudfrontend1a247887"
+        }
+      ]
+    },
+    "AMPLIFY_function_yourLambdaFunctionName_providerPlugin": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "yourLambdaFunctionName"
+        }
+      ]
+    },
+    "AMPLIFY_storage_s3afdc0ba5_output": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "s3afdc0ba5"
+        }
+      ]
+    },
+    "AMPLIFY_storage_s3afdc0ba5_providerPlugin": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "s3afdc0ba5"
+        }
+      ]
+    }
+  },
   "storage": {
     "s3afdc0ba5": {
       "dependsOn": []
